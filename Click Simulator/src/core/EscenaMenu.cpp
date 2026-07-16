@@ -18,18 +18,17 @@ bool EscenaMenu::cargar(float anchoVentana, float altoVentana) {
         spriteFondo.setPosition(0.f, 0.f);
     }
 
-    // El "gif" se arma con fotogramas assets/images/menu/gif_0001.png, 0002, ...
-    auto rutasGif = generarRutasFrames("assets/images/menu", "gif_", ".png");
-    if (rutasGif.empty()) {
-        std::cerr << "[EscenaMenu] No se encontraron frames en assets/images/menu/ "
-                     "(esperaba gif_0001.png, gif_0002.png, ...)" << std::endl;
+    // El "gif" ahora es un único sprite sheet (todos los fotogramas en una
+    // sola imagen, como el que arma la herramienta de conversión gif -> sprite
+    // sheet): 5 columnas x 1 fila, 5 fotogramas en total.
+    if (!animGif.cargarSpriteSheet("assets/images/menu/gif_spritesheet.png", 5, 1, 5, 0.2f, true)) {
+        std::cerr << "[EscenaMenu] Falta assets/images/menu/gif_spritesheet.png "
+                     "(sprite sheet del gif, 5 columnas x 1 fila)." << std::endl;
         ok = false;
     } else {
-        animGif.cargar(rutasGif, 0.1f, true); // en bucle
-        const sf::Texture& primerFrame = animGif.getTexturaActual();
-        spriteGif.setTexture(primerFrame, true);
-        sf::Vector2u tam = primerFrame.getSize();
-        spriteGif.setOrigin(tam.x / 2.f, tam.y / 2.f);
+        animGif.aplicarA(spriteGif);
+        sf::FloatRect tam = spriteGif.getLocalBounds();
+        spriteGif.setOrigin(tam.width / 2.f, tam.height / 2.f);
         // Centrado pero desplazado hacia la derecha
         spriteGif.setPosition(ancho * 0.68f, alto * 0.45f);
     }
@@ -60,7 +59,7 @@ void EscenaMenu::procesarEventos(const sf::Event& evento, sf::RenderWindow& vent
 
 void EscenaMenu::actualizar(float dt) {
     animGif.actualizar(dt);
-    spriteGif.setTexture(animGif.getTexturaActual(), true);
+    animGif.aplicarA(spriteGif);
 }
 
 void EscenaMenu::dibujar(sf::RenderWindow& ventana) {

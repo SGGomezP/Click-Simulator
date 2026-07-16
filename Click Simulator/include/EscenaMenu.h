@@ -20,7 +20,7 @@ private:
     sf::Texture texturaFondo;
     sf::Sprite spriteFondo;
 
-    ArrayAnimacion animGif; // el "gif" del menú, como secuencia de imágenes en bucle
+    ArrayAnimacion animGif; // el "gif" del menú, recortado de un sprite sheet, en bucle
     sf::Sprite spriteGif;
 
     sf::Texture texturaBoton;

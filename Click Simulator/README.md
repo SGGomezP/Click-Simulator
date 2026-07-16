@@ -4,36 +4,42 @@ Este documento resume qué archivos tienes que añadir, con qué nombre exacto
 y en qué carpeta, para que el juego funcione tal como lo pediste. También
 explica dónde quedó cada estructura de datos.
 
-## 1. Por qué "video" y "gif" son en realidad secuencias de imágenes
+## 1. Cómo funciona ahora la apertura del juego (ya no hay video de intro)
 
-SFML (la librería que usa este proyecto) **no puede reproducir archivos de
-video (.mp4) ni .gif directamente** sin instalar dependencias extra pesadas
-(decodificadores de video). La solución estándar — y la que usa este
-proyecto — es convertir tu video y tu gif en una **secuencia de imágenes
-PNG numeradas**, y el juego las reproduce como una animación de fotogramas.
+Ya no hay "video" de intro ni secuencia de frames para esa pantalla. Ahora,
+al abrir el juego:
 
-Puedes hacerlo gratis con `ffmpeg` (línea de comandos):
+1. La ventana arranca completamente **negra y sin sonido**.
+2. La pantalla se va **aclarando gradualmente** (negro -> blanco).
+3. Cuando queda **totalmente blanca**, suena un audio (una sola vez).
+4. Cuando ese audio **termina de reproducirse**, la pantalla blanca
+   desaparece y aparece la pantalla de inicio (fondo + gif a la derecha +
+   botón "Jugar" a la izquierda), y ahí arranca la música del menú.
 
-```bash
-# Video de intro -> frames (ajusta el fps que quieras, 20 va bien)
-ffmpeg -i mi_video.mp4 -vf fps=20 assets/images/intro/frame_%04d.png
+Si no agregas el archivo de audio, el juego no se queda trabado: espera un
+par de segundos en blanco y sigue igual hacia el menú.
 
-# Gif del menú -> frames
-ffmpeg -i mi_gif.gif assets/images/menu/gif_%04d.png
-```
+## 2. Por qué el "gif" del menú es en realidad un sprite sheet
 
-Esto genera automáticamente `frame_0001.png`, `frame_0002.png`, ... El
-juego detecta solo cuántos frames hay (no necesitas tocar el código si
-agregas o quitas frames).
+SFML (la librería que usa este proyecto) **no puede reproducir archivos
+.gif directamente** sin instalar dependencias extra pesadas. Antes este
+proyecto usaba una carpeta con un PNG por cada fotograma; ahora usa
+**una sola imagen "sprite sheet"** (varios fotogramas del gif puestos en
+tira, uno al lado del otro), que es justo lo que generan herramientas
+online de "gif to sprite sheet" como la que ya usaste. El juego recorta
+automáticamente cada fotograma de esa tira y los reproduce en bucle como
+si fuera el gif.
 
-## 2. Archivos que debes añadir (nombre exacto y carpeta)
+La configuración actual espera una tira de **5 columnas x 1 fila (5
+fotogramas)**, igual a la que ya generaste. Si en el futuro generas una
+tira con otra cantidad de columnas/filas/fotogramas, solo hay que ajustar
+esos 3 números en `EscenaMenu.cpp` (la línea de `animGif.cargarSpriteSheet(...)`).
 
-### Pantalla de intro (video)
-- `assets/images/intro/frame_0001.png`, `frame_0002.png`, ... — los frames de tu video.
+## 3. Archivos que debes añadir (nombre exacto y carpeta)
 
 ### Pantalla de inicio / menú
 - `assets/images/menu/fondo_menu.png` — el fondo del menú (distinto al del juego).
-- `assets/images/menu/gif_0001.png`, `gif_0002.png`, ... — los frames de tu gif (se reproduce en bucle, centrado pero hacia la derecha).
+- `assets/images/menu/gif_spritesheet.png` — el sprite sheet del gif (5 columnas x 1 fila, 5 fotogramas), tal como el que exportaste con la herramienta de conversión. Se reproduce en bucle, centrado pero hacia la derecha.
 - `assets/images/menu/boton_jugar.png` — el botón "Jugar" en pixel art (abajo a la izquierda).
 
 ### Personaje — idle (5 sprites)
@@ -55,6 +61,9 @@ para eso.)*
 ### Fuente de texto (obligatoria para que se vea cualquier texto)
 - `assets/fuentes/pixel_font.ttf` — cualquier fuente pixel art gratuita (ej. de fonts.google.com o itch.io). Sin este archivo el juego corre pero los textos no se dibujan.
 
+### Sonido — apertura del juego (pantalla que va de negro a blanco)
+- `assets/sonidos/apertura.ogg` — suena una sola vez, justo cuando la pantalla queda totalmente blanca. Cuando termina de sonar, se pasa a la pantalla de inicio. Si falta este archivo, el juego igual sigue tras una breve espera (no se traba).
+
 ### Sonido — música (loop)
 - `assets/sonidos/musica_menu.ogg` — suena en bucle en la pantalla de inicio.
 - `assets/sonidos/musica_juego.ogg` — suena en bucle una vez que le das a Jugar.
@@ -68,7 +77,7 @@ para eso.)*
 > Todos los sonidos deben ser `.ogg` (formato que usa SFML). Si los tienes en
 > `.mp3` o `.wav`, conviértelos con `ffmpeg -i sonido.mp3 sonido.ogg`.
 
-## 3. Carpeta `estructuras/` — las 5 estructuras de datos pedidas
+## 4. Carpeta `estructuras/` — las 5 estructuras de datos pedidas
 
 ```
 estructuras/
@@ -84,7 +93,7 @@ por qué. Si ya tenías creada una carpeta vacía llamada `estructures` (con
 esa ortografía), puedes borrarla: el proyecto ahora usa `estructuras`
 (con la ortografía correcta) como carpeta única.
 
-## 4. Árbol de diálogo implementado (grafo)
+## 5. Árbol de diálogo implementado (grafo)
 
 ```
 Click 10 -> "Hola nena"
@@ -96,7 +105,7 @@ Click 10 -> "Hola nena"
         Queti      -> Click 30 -> Final 4: se va en patineta hacia la derecha
 ```
 
-## 5. Progreso guardado
+## 6. Progreso guardado
 
 El progreso (clicks + elecciones) se guarda automáticamente en
 `guardado/progreso.dat` cada vez que haces click. Si cierras el juego antes
@@ -105,7 +114,7 @@ quedaste (incluso si un cuadro de diálogo estaba abierto sin responder).
 Al llegar a cualquier final, ese archivo se borra al cerrar la ventana, así
 que la próxima partida empieza de cero.
 
-## 6. Compilar
+## 7. Compilar
 
 El archivo `.vscode/tasks.json` ya quedó actualizado con los nuevos
 `.cpp` y con `-lsfml-audio`. Solo corre la tarea de build de siempre
