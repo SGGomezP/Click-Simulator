@@ -33,7 +33,7 @@ bool EscenaJuego::cargar(float anchoVentana, float altoVentana) {
         std::cerr << "[EscenaJuego] Faltan sprites idle en assets/images/personaje/idle/ "
                      "(idle_0001.png .. idle_0005.png)" << std::endl;
     }
-    personaje.establecerPosicion(ancho * 0.5f, alto * 0.52f);
+    personaje.establecerPosicion(ancho * 0.5f, alto * 0.58f);
 
     // --- finales ---
     auto rutasBeso = generarRutasFrames("assets/images/personaje/final_beso", "beso_", ".png");
@@ -264,7 +264,7 @@ void EscenaJuego::procesarEventos(const sf::Event& evento) {
 }
 
 void EscenaJuego::actualizar(float dt) {
-    personaje.actualizar(dt, ancho);
+    personaje.actualizar(dt, ancho, alto);
     textoContador.setString(std::to_string(contadorClicks));
 
     if (dialogoAbierto) {

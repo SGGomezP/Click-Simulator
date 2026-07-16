@@ -1,7 +1,7 @@
 #include "../../include/Personaje.h"
 
 Personaje::Personaje()
-    : escalaBase(3.f), tiempoEfectoClick(0.f), finalActivo(TipoFinal::NINGUNO),
+    : ajusteFino(1.f), tiempoEfectoClick(0.f), finalActivo(TipoFinal::NINGUNO),
       deslizandoIzquierda(false), deslizandoDerecha(false), salioDePantalla(false) {}
 
 bool Personaje::cargarIdle(const std::vector<std::string>& rutas) {
@@ -29,7 +29,7 @@ void Personaje::establecerPosicion(float x, float y) {
     sprite.setPosition(posicionBase);
 }
 
-void Personaje::actualizar(float dt, float anchoVentana) {
+void Personaje::actualizar(float dt, float anchoVentana, float altoVentana) {
     // Animación activa según el estado actual
     switch (finalActivo) {
         case TipoFinal::NINGUNO:   animIdle.actualizar(dt);     break;
@@ -59,7 +59,14 @@ void Personaje::actualizar(float dt, float anchoVentana) {
         sprite.setTexture(*textura, true);
         sf::Vector2u tam = textura->getSize();
         sprite.setOrigin(tam.x / 2.f, tam.y / 2.f);
-        sprite.setScale(escalaBase * escalaClick, escalaBase * escalaClick);
+
+        // Escala automática: sin importar cuántos píxeles mida el sprite
+        // original, el personaje siempre ocupa FRACCION_ALTO_VENTANA del
+        // alto de la ventana, para que el fondo y la UI queden visibles.
+        float alturaObjetivo = altoVentana * FRACCION_ALTO_VENTANA;
+        float escalaAuto = (tam.y > 0) ? (alturaObjetivo / static_cast<float>(tam.y)) : 1.f;
+
+        sprite.setScale(escalaAuto * ajusteFino * escalaClick, escalaAuto * ajusteFino * escalaClick);
     }
 
     // Deslizamiento de salida para los finales 2 (saludo, izquierda) y 4 (patineta, derecha)

@@ -21,7 +21,7 @@ public:
 
     void establecerPosicion(float x, float y);
 
-    void actualizar(float dt, float anchoVentana);
+    void actualizar(float dt, float anchoVentana, float altoVentana);
     void dibujar(sf::RenderWindow& ventana);
 
     bool contienePunto(sf::Vector2f punto) const;
@@ -40,7 +40,13 @@ private:
 
     sf::Sprite sprite;
     sf::Vector2f posicionBase;
-    float escalaBase; // escala normal del sprite (pixel art ampliado)
+
+    // El personaje se escala automáticamente para que, sin importar el
+    // tamaño real en píxeles del sprite que se cargó, siempre ocupe una
+    // fracción fija del alto de la ventana (y así no tape todo el fondo).
+    // ajusteFino permite compensar a mano si aun así se ve muy grande/chico.
+    static constexpr float FRACCION_ALTO_VENTANA = 0.55f;
+    float ajusteFino; // multiplicador extra sobre la escala automática (1.0 = sin cambios)
 
     // efecto de click (achicarse un poco y volver a la normalidad)
     float tiempoEfectoClick;
