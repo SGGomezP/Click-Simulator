@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Compilar Click Simulator",
+            "command": "g++",
+            "args": [
+                "-std=c++17",
+                "src/main.cpp",
+                "src/core/Game.cpp",
+                "src/core/EscenaIntro.cpp",
+                "src/core/EscenaMenu.cpp",
+                "src/core/EscenaJuego.cpp",
+                "src/core/Personaje.cpp",
+                "src/core/ManejadorAudio.cpp",
+                "-Iinclude",
+                "-o",
+                "Click_Simulator.exe",
+                "-lsfml-graphics",
+                "-lsfml-window",
+                "-lsfml-system",
+                "-lsfml-audio"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
